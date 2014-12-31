@@ -1,0 +1,73 @@
+map-width = 80%
+ui-control-width = 100% - map-width
+
+square-size = 10px;
+max-squares = 50;
+
+game-height = 100%;
+game-width = (square-size * max-squares) * (ui-control-width + 105%) / 100;
+
+base-plane-index = 1
+square-plane-index = base-plane-index + 1
+
+base-plane()
+    z-index: base-plane-index
+
+square(background)
+    float:left
+    width: square-size;
+    height: square-size;
+    background-color: background;
+    z-index: square-plane-index;
+
+div
+    margin:none;
+    box-sizing: border-box;
+
+.debug
+    margin: 5px;
+
+.main-game
+    margin-top: 50px
+    margin-left: 100px;
+    min-height: game-height;
+    height: game-height;
+    width: game-width;
+    float: left;
+    base-plane();
+
+.path-generator
+    margin: 5px;
+    margin-left: 100px;
+    float: left;
+    cursor: pointer;
+    base-plane();
+
+.map 
+    width: map-width;
+    background-color: red;
+
+.ui-controls 
+    width: ui-control-width;
+    background-color: blue;
+
+.selected-square
+    border-color : black;
+    border-style : solid;
+    border-width : 4px;
+
+
+.water
+    square(blue)
+
+.fire
+    square(rgb(255, 155, 0))
+
+.earth
+    square(brown)
+
+.grass
+    square(green)
+
+.stone
+    square(rgb(30, 40, 30))
