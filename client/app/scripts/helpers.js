@@ -11,6 +11,10 @@ var lastChar = function(i){
 };
 
 var oneOf = function(collection, eq){
+    if (typeof eq === "undefined" || eq === null){
+        eq = function() { return true; }
+    }
+
     var ones = [];
 
     for (var i = 0; i < collection.length; i++){

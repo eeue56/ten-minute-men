@@ -97,6 +97,7 @@ var assignFunctions = (function() {
     };
 
     var turtle = function(i, n, board){
+        // TODO: Ew
         if (i < n - 1) return "water";
 
         var commands = document.getElementById("turtle-commands").value.trim();
@@ -109,7 +110,8 @@ var assignFunctions = (function() {
         var boardProps = {
             color: "fire",
             node: 0,
-            default_amount : 1
+            default_amount : 1,
+            _last_command: null
         };
 
         var COMMANDS = {
@@ -117,15 +119,50 @@ var assignFunctions = (function() {
             down: calculations.down,
             right: calculations.right,
             left: calculations.left,
+            paint: function(node) { 
+                board[node] = boardProps.color; 
+            },
+            "to-the-death": function(){
+                while(!calculations.isBottomEdge(boardProps.node, n)){
+                    console.log(boardProps.node, boardProps._last_command);
+
+                    var r = COMMANDS[boardProps._last_command](boardProps.node, n);
+                    if (r !== null){
+                        boardProps.node = r;
+                    }
+                    COMMANDS.paint(boardProps.node);
+                }
+            },
+            "one-of": function(args){
+                if (args.split(" ")[0].trim() === "neighbors"){
+                    return oneOf(calculations.neighbors(boardProps.node))
+                }
+            },
             set: function(args){
                 // todo: add typing
                 var variable = args.split(" ")[0].trim();
                 var _value = args.split(" ")[1].trim();
                 boardProps[variable] = _value;
-            }
+            },
+            ask: function(args){
+                var who = args.split(" ")[0].trim();
+
+                if (who === "neighbors"){
+                    var neighbors = calculations.neighbors(boardProps.node, n);
+
+                    for (var i = 0; i < neighbors.length; i++){
+                        board[neighbors[i]] = boardProps.color;
+                    }
+                }
+                else if (who === "one-of"){
+                    var node = COMMANDS["one-of"]("neighbors");
+                    board[node] = boardProps.color;
+                }
+            },
+            null: function(){}
         };
 
-        for (var x = 0; x < commands.length; x++){   
+        for (var x = 0; x < commands.length; x++, boardProps._last_command = currentCommand){   
 
             // todo: urgh  
             boardProps.node = parseInt(boardProps.node);       
@@ -137,12 +174,18 @@ var assignFunctions = (function() {
                 continue;
             }
 
+            if (currentCommand.indexOf("ask") === 0){
+                var args = currentCommand.replace("ask ", "");
+                COMMANDS["ask"](args);
+                continue;
+            }
+
             var amount = boardProps.default_amount;
+
             if (currentCommand.indexOf("*") > -1){
                 amount = parseInt(currentCommand.split("*")[1].trim());
                 currentCommand = currentCommand.split("*")[0].trim(); 
             }
-            console.log(boardProps.node, currentCommand);
 
             for (var _x = 0; _x < amount; _x++){
                 board[boardProps.node] = boardProps.color;   
