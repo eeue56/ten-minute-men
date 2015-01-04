@@ -167,25 +167,51 @@ var domOperations = (function(){
     // TODO: make this more generic
     // Attribute regex?
     var loadWatcher = function(window){
-        var save = function(elm){
-            var watch = elm.attributes["nz-watch"].value;
-            var event_ = elm.attributes["nz-what"].value || "change";
-            var condition = elm.attributes['nz-show'].value || true;
+        var _attrib = function(elm, someAttribute, _default){
+            if (typeof _default === "undefined" || _default === null){
+                _default = null;
+            }
 
-            var thingy = window[watch] || document.getElementById(watch);
+            if (typeof elm.attributes[someAttribute] === "undefined" || 
+                elm.attributes[someAttribute] === null) {
+                return _default;
+            }
+
+            return elm.attributes[someAttribute].value;
+        }
+
+        var save = function(elm){
+            var attrib = function(x, y){ return _attrib(elm, x, y); };
+            var watch = attrib("nz-watch", "{self}");
+
+            var event_ = attrib("nz-what") || "change";
+            var condition = attrib('nz-show') ;
+            var run = attrib('nz-run');
+
+            var thingy = function(watch, elm){
+                if (watch === "{self}"){
+                    return elm;
+                }
+                return window[watch] || document.getElementById(watch);
+            }(watch, elm);
 
             thingy.addEventListener(event_, function(){
-                if (eval(condition)){
-                    domOperations.visiblity.show(elm);    
-                } else {
-                   domOperations.visiblity.hide(elm);
+                if (condition !== null){
+                    if (eval(condition)){
+                        domOperations.visiblity.show(elm);    
+                    } else {
+                        domOperations.visiblity.hide(elm);
+                    }
+                }
+                if (run !== null){
+                    eval(run);
                 }
             });
 
             trigger(thingy, event_);
         };
 
-        var nodes = document.querySelectorAll("[nz-show]");
+        var nodes = document.querySelectorAll("[nz-show],[nz-run]");
         for (var i = 0; i < nodes.length; i++){
             save(nodes[i]);
         }

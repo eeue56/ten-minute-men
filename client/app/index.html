@@ -18,23 +18,50 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <div id="path-painter" 
-         nz-watch="assign-func"
-         nz-what="change"
-         nz-show="domOperations.ui.selectedAssign() === 'pathPainter'" 
-         class="path-generator">
+    <div class="content">
+        <div id="path-painter" 
+             nz-watch="assign-func"
+             nz-what="change"
+             nz-show="domOperations.ui.selectedAssign() === 'pathPainter'" 
+             class="path-generator">
 
-    </div>
-
-    <div id="main-game" class="main-game">
-
-
-        <div id="board" class="map">
-            
         </div>
-        <div class="ui-controls"></div>
-    </div>
 
+        <div 
+             nz-watch="assign-func"
+             nz-what="change"
+             nz-show="domOperations.ui.selectedAssign() === 'turtle'">
+            
+            <textarea id="turtle-commands"
+                 class="turtle-commands">
+            </textarea>
+            <button
+                nz-what="click"
+                nz-run="app.repaint()">
+                 Run
+             </button>
+        </div> 
+
+        <div id="main-game" class="main-game">
+
+
+            <div id="board" class="map">
+                
+            </div>
+            <div class="ui-controls"></div>
+        </div>
+
+        <div class="debug">
+            <select 
+                nz-what="change" 
+                nz-run="app.repaint(); app.setFuncText()"
+                id="assign-func">
+            </select>
+            <div id="assign-func-text" 
+                contentEditable="true">
+            </div>
+        </div>
+    </div>
     <!-- build:js(.) scripts/oldieshim.js -->
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>

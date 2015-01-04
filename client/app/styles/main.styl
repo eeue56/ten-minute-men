@@ -28,20 +28,27 @@ div
     margin: 5px;
 
 .main-game
-    margin-top: 50px
-    margin-left: 100px;
     min-height: game-height;
     height: game-height;
     width: game-width;
-    float: left;
     base-plane();
 
-.path-generator
-    margin: 5px;
+.content
+    margin-top: 50px;
     margin-left: 100px;
-    float: left;
+
+.path-generator
+    margin-top: -(square-size / 2);
+    padding-bottom: square-size * 2;
     cursor: pointer;
     base-plane();
+
+.turtle-commands
+    height: square-size * 5;
+    width: map-width;
+    padding-bottom: square-size * 2;
+    base-plane();
+
 
 .map 
     width: map-width;
@@ -55,6 +62,13 @@ div
     border-color : black;
     border-style : solid;
     border-width : 4px;
+
+
+
+.hidden
+    display: none;
+    visibility: hidden;
+
 
 
 .water
