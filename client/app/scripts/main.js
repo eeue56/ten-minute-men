@@ -375,6 +375,58 @@ var app = function(){
     // TODO: replace with nz
     domOperations.paths._painterElement.addEventListener("click", boardRepaint);
 
+    domOperations.nzLoader.register("show", function(){
+        var condition = arguments[1];
+
+        if (eval(condition)){
+            domOperations.visiblity.show(arguments[0]);
+        } else {
+            domOperations.visiblity.hide(arguments[0]);
+        };
+    });
+
+    domOperations.nzLoader.register("model", function(){
+        var variable = arguments[1];
+        var elm = arguments[0];
+
+        var mutationCallback = function(){
+            domOperations.nzLoader.trigger("show");
+        };
+
+        var allObserve = function(elm){
+            var obs = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutationCallback();
+                });    
+            });
+
+            var config = { 
+                attributes: false, 
+                childList: false, 
+                characterData: true, 
+                subtree: true
+            };
+            
+            obs.observe(elm, config);
+        };
+
+        var selectObserve = function(elm){
+            elm.addEventListener("change", function(event_){
+                event_.preventDefault();
+                mutationCallback();
+            });
+        };
+
+        if (elm.tagName === "SELECT"){
+            selectObserve(elm);
+        } else {
+            allObserve(elm);
+        }
+
+    });
+
+    domOperations.nzLoader.run();
+
     return {
         repaint: boardRepaint,
         setFuncText: setFuncText

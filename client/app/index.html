@@ -17,14 +17,11 @@
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
-
+    <div width="200" height="200" contentEditable="true" nz-show="true">hello</div>
     <div class="content">
         <div id="path-painter" 
-             nz-watch="assign-func"
-             nz-what="change"
              nz-show="domOperations.ui.selectedAssign() === 'pathPainter'" 
              class="path-generator">
-
         </div>
 
         <div 
@@ -35,6 +32,8 @@
             <textarea id="turtle-commands"
                  class="turtle-commands">
             </textarea>
+            
+            
             <button
                 nz-what="click"
                 nz-run="app.repaint()">
@@ -53,6 +52,7 @@
 
         <div class="debug">
             <select 
+                nz-model="assignFuncDropDown"
                 nz-what="change" 
                 nz-run="app.repaint(); app.setFuncText()"
                 id="assign-func">

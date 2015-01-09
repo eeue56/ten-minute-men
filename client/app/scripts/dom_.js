@@ -196,13 +196,13 @@ var domOperations = (function(){
             }(watch, elm);
 
             thingy.addEventListener(event_, function(){
-                if (condition !== null){
+                /*if (condition !== null){
                     if (eval(condition)){
                         domOperations.visiblity.show(elm);    
                     } else {
                         domOperations.visiblity.hide(elm);
                     }
-                }
+                }*/
                 if (run !== null){
                     eval(run);
                 }
@@ -217,11 +217,69 @@ var domOperations = (function(){
         }
     };
 
+    var nzLoader = (function(){
+        var definedRules = {};
+
+        var _attrib = function(elm, someAttribute, _default){
+            if (typeof _default === "undefined" || _default === null){
+                _default = null;
+            }
+
+            if (typeof elm.attributes[someAttribute] === "undefined" || 
+                elm.attributes[someAttribute] === null) {
+                return _default;
+            }
+
+            return elm.attributes[someAttribute].value;
+        }
+
+        var register = function(name, action){
+            definedRules[name] = action;
+        };
+
+        var bind = function(event_, elm, func){
+            console.log(arguments);
+            elm.addEventListener(event_, function(){
+                func(this, _attrib(elm, "nz-" + event_));
+            });
+            trigger(elm, event_);
+        };
+
+        var run = function(){
+
+            var rules = Object.keys(definedRules);
+            for (var i = 0; i < rules.length; i++){
+                var rule = definedRules[rules[i]];
+
+                var nodes = document.querySelectorAll("[nz-" + rules[i] + "]");
+                console.log("here", nodes, rules[i]);
+                for (var j = 0; j < nodes.length; j++){
+                    bind(rules[i], nodes[j], rule);
+                }
+            }
+        };
+
+        var triggerObservers = function(name){
+            var nodes = document.querySelectorAll("[nz-" + name + "]");
+            for (var i = 0; i < nodes.length; i++){
+                trigger(nodes[i], name);
+            }
+        };
+
+        return {
+            register: register,
+            bind: bind,
+            run: run,
+            trigger: triggerObservers
+        };
+    })();
+
     return {
         board: board,
         ui: ui,
         paths: pathPainter,
         visiblity: visiblity,
-        loadWatcher: loadWatcher
+        loadWatcher: loadWatcher,
+        nzLoader : nzLoader
     };
 })();
