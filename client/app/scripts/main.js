@@ -119,6 +119,13 @@ var assignFunctions = (function() {
             down: calculations.down,
             right: calculations.right,
             left: calculations.left,
+            print: function(args) {
+                var splittedArgs = args.split(" ");
+                for (var i = 0; i < splittedArgs.length; i++){
+                    var variable = splittedArgs[i].trim();
+                    console.log(boardProps[variable]);
+                }
+            },
             paint: function(node) { 
                 board[node] = boardProps.color; 
             },
@@ -180,6 +187,13 @@ var assignFunctions = (function() {
                 continue;
             }
 
+            if (currentCommand.indexOf("print") === 0){
+                var args = currentCommand.replace("print ", "");
+                COMMANDS["print"](args);
+                continue;
+            }
+
+
             var amount = boardProps.default_amount;
 
             if (currentCommand.indexOf("*") > -1){
@@ -189,7 +203,8 @@ var assignFunctions = (function() {
 
             for (var _x = 0; _x < amount; _x++){
                 board[boardProps.node] = boardProps.color;   
-                boardProps.node = COMMANDS[currentCommand](boardProps.node, n);
+                console.log("d", currentCommand, "d");
+                boardProps.node = COMMANDS[currentCommand](boardProps.node, n) || boardProps.node;
             }
 
         }
