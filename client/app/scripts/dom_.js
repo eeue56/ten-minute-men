@@ -125,6 +125,7 @@ var domOperations = (function(){
         };
 
         return {
+            _boardElement: boardElement,
             update: update,
             push: push
         };
@@ -276,6 +277,7 @@ var domOperations = (function(){
 
     return {
         board: board,
+        classes: classes,
         ui: ui,
         paths: pathPainter,
         visiblity: visiblity,

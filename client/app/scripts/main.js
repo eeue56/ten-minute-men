@@ -1,8 +1,11 @@
 
 // VERY IMPORTANT TO CHANGE THIS WITH THE CSS
 var BOARD_MAX_WIDTH = 50;
+var NUMBER_OF_CELLS = BOARD_MAX_WIDTH * BOARD_MAX_WIDTH;
 
 var DEBUG = true; 
+
+var selected = [];
 
 var debug = function(f){
     // TODO: add wrappers
@@ -96,6 +99,45 @@ var assignFunctions = (function() {
         return "water";
     };
 
+    var pixelPainter = function(i, n, board){
+        if (i < n - 1) return "water";
+
+        var pieces = Object.keys(selected);
+        var exitNode = "water";
+
+        for (var x = 0; x < pieces.length; x++){
+            var id = parseInt(pieces[x], 10);
+            board[id] = selected[pieces[x]];
+
+            if (id === n - 1) exitNode = selected[pieces[x]];
+        }
+        return exitNode;
+
+    };
+
+    var combinedPainter = function(i, n, board){
+        var pieces = document.getElementsByClassName("selected-square");
+
+        for (var x = 0; x < pieces.length; x++){
+            if ("path-piece-" + i % BOARD_MAX_WIDTH === pieces[x].id){
+                return "fire";
+            }
+        }
+
+        if (i < n - 1) return "water";
+
+        var pieces = Object.keys(selected);
+        var exitNode = "water";
+
+        for (var x = 0; x < pieces.length; x++){
+            var id = parseInt(pieces[x], 10);
+            board[id] = selected[pieces[x]];
+
+            if (id === n - 1) exitNode = selected[pieces[x]];
+        }
+        return exitNode;
+    };
+
     var turtle = function(i, n, board){
         // TODO: Ew
         if (i < n - 1) return "water";
@@ -128,6 +170,17 @@ var assignFunctions = (function() {
             },
             paint: function(node) { 
                 board[node] = boardProps.color; 
+            },
+            "with": function(args) {
+                // TODO: for some reason this doesn't like the last one
+
+                var splittedArgs = args.split(" ");
+                var divs = document.querySelectorAll(splittedArgs[0]);
+
+                for (var i = 0; i < divs.length; i++){
+                    var id = divs[i].id.replace("board-", "");
+                    COMMANDS.paint(parseInt(id));                }
+
             },
             "to-the-death": function(){
                 while(!calculations.isBottomEdge(boardProps.node, n)){
@@ -166,13 +219,16 @@ var assignFunctions = (function() {
                     board[node] = boardProps.color;
                 }
             },
+            reload : function(){
+                board = Board.create(NUMBER_OF_CELLS, assignFunctions._default);
+            },
             null: function(){}
         };
 
         for (var x = 0; x < commands.length; x++, boardProps._last_command = currentCommand){   
 
             // todo: urgh  
-            boardProps.node = parseInt(boardProps.node);       
+            boardProps.node = parseInt(boardProps.node, 10);       
             var currentCommand = commands[x].trim();
 
             if (currentCommand.indexOf("set") === 0){
@@ -180,6 +236,13 @@ var assignFunctions = (function() {
                 COMMANDS["set"](args);
                 continue;
             }
+
+            if (currentCommand.indexOf("with") === 0){
+                var args = currentCommand.replace("with ", "");
+                COMMANDS["with"](args);
+                continue;
+            }
+
 
             if (currentCommand.indexOf("ask") === 0){
                 var args = currentCommand.replace("ask ", "");
@@ -190,6 +253,11 @@ var assignFunctions = (function() {
             if (currentCommand.indexOf("print") === 0){
                 var args = currentCommand.replace("print ", "");
                 COMMANDS["print"](args);
+                continue;
+            }
+
+            if (currentCommand.indexOf("reload") === 0){
+                COMMANDS["reload"]();
                 continue;
             }
 
@@ -219,6 +287,8 @@ var assignFunctions = (function() {
         edgy: edgy,
         paths: paths,
         pathPainter: pathPainter, 
+        pixelPainter: pixelPainter,
+        combinedPainter: combinedPainter,
         turtle: turtle
     };
 })();
@@ -322,7 +392,7 @@ var calculations = (function(){
 })();
 
 // TODO: Move out
-var board = (function(){
+var Board = (function(){
     var create = function(n, assign){
         if (assign === null || typeof assign === "undefined"){
             assign = assignFunctions._default;
@@ -358,11 +428,11 @@ var board = (function(){
 
 
 var app = function(){
-    var _board = board.create(2500, assignFunctions.edgy);
-    domOperations.board.push(_board);
-    domOperations.board.update(_board);
+    var board = Board.create(NUMBER_OF_CELLS, assignFunctions.edgy);
+    domOperations.board.push(board);
+    domOperations.board.update(board);
 
-    var paths = board.create(BOARD_MAX_WIDTH, assignFunctions._default);
+    var paths = Board.create(BOARD_MAX_WIDTH, assignFunctions._default);
     domOperations.paths.push(paths);
 
 
@@ -378,8 +448,8 @@ var app = function(){
     var boardRepaint = function(){
         var func = assignFunctions[assignSelector.value]; 
         if (func){
-            board.updateClasses(_board, func);
-            domOperations.board.update(_board);
+            Board.updateClasses(board, func);
+            domOperations.board.update(board);
         }
     };
 
@@ -389,6 +459,18 @@ var app = function(){
 
     // TODO: replace with nz
     domOperations.paths._painterElement.addEventListener("click", boardRepaint);
+
+    domOperations.board._boardElement.addEventListener("click", function(event_){
+        var id = parseInt(event_.target.id.replace("board-", ""), 10);
+        if (typeof selected[id] === "undefined"){
+            selected[id] = "fire";
+        } else {
+            selected[id] = "water";
+        }
+
+        if (assignSelector.value === "pixelPainter" || 
+            assignSelector.value === "combinedPainter") boardRepaint();
+    });
 
     domOperations.nzLoader.register("show", function(){
         var condition = arguments[1];
