@@ -2,6 +2,7 @@
 // VERY IMPORTANT TO CHANGE THIS WITH THE CSS
 var BOARD_MAX_WIDTH = 50;
 var NUMBER_OF_CELLS = BOARD_MAX_WIDTH * BOARD_MAX_WIDTH;
+var DOES_BOARD_WRAP = false;
 
 var DEBUG = true; 
 
@@ -190,14 +191,16 @@ var assignFunctions = (function() {
 
                 for (var i = 0; i < divs.length; i++){
                     var id = divs[i].id.replace("board-", "");
-                    COMMANDS.paint(parseInt(id));                }
+                    COMMANDS.paint(parseInt(id));                
+                }
 
             },
             "to-the-death": function(){
-                while(!calculations.isBottomEdge(boardProps.node, n)){
-                    console.log(boardProps.node, boardProps._last_command);
+                var r = 0;
 
-                    var r = COMMANDS[boardProps._last_command](boardProps.node, n);
+                while(r > -1){
+                    r = COMMANDS[boardProps._last_command](boardProps.node, n);
+
                     if (r !== null){
                         boardProps.node = r;
                     }
@@ -292,7 +295,7 @@ var assignFunctions = (function() {
     };
 
     return {
-        _default : chessBoard, // _default,
+        _default : _default,
         island : island,
         neighbors : neighborsPaint,
         edgy: edgy,
@@ -308,18 +311,26 @@ var assignFunctions = (function() {
 // TODO: Move out
 var calculations = (function(){
     var up = function(i, n){
+        if (!DOES_BOARD_WRAP && i - BOARD_MAX_WIDTH < 0) return -1;
+
         return i - BOARD_MAX_WIDTH;
     };
 
     var down = function(i, n){
+        if (!DOES_BOARD_WRAP && i + BOARD_MAX_WIDTH > n) return -1;
+
         return i + BOARD_MAX_WIDTH;
     };
 
     var right = function(i, n){
+        if (!DOES_BOARD_WRAP && calculations.rowNumber(i) !== calculations.rowNumber(i + 1)) return -1;
+
         return i + 1;
     };
 
     var left = function(i, n){
+        if (!DOES_BOARD_WRAP && calculations.rowNumber(i) != calculations.rowNumber(i - 1)) return -1;
+
         return i - 1;
     };
 
