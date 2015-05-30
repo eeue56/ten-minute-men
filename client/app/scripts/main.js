@@ -115,6 +115,17 @@ var assignFunctions = (function() {
 
     };
 
+    var chessBoard = function(i, n, board){
+        if (calculations.rowNumber(i, n) % 2 === 0){
+            i += 1;
+        }
+
+        if (i % 2 === 0){
+            return "water";
+        }        
+        return "fire";
+    };
+
     var combinedPainter = function(i, n, board){
         var pieces = document.getElementsByClassName("selected-square");
 
@@ -281,7 +292,7 @@ var assignFunctions = (function() {
     };
 
     return {
-        _default : _default,
+        _default : chessBoard, // _default,
         island : island,
         neighbors : neighborsPaint,
         edgy: edgy,
@@ -289,7 +300,8 @@ var assignFunctions = (function() {
         pathPainter: pathPainter, 
         pixelPainter: pixelPainter,
         combinedPainter: combinedPainter,
-        turtle: turtle
+        turtle: turtle,
+        chess: chessBoard
     };
 })();
 
@@ -376,6 +388,16 @@ var calculations = (function(){
         );   
     };
 
+    var rowNumber = function(i, n){
+        if (i < BOARD_MAX_WIDTH) return 0; 
+
+        return parseInt(i / BOARD_MAX_WIDTH);
+    };
+
+    var columnNumber = function(i, n){
+        return i % BOARD_MAX_WIDTH;
+    };
+
     return {
         up: up,
         down: down,
@@ -387,7 +409,10 @@ var calculations = (function(){
         isBottomEdge: isBottomEdge,
         isLeftEdge: isLeftEdge,
         isRightEdge: isRightEdge,
-        isTopEdge: isTopEdge
+        isTopEdge: isTopEdge,
+
+        rowNumber: rowNumber,
+        columnNumber: columnNumber
     };
 })();
 
